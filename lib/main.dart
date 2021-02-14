@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:crypto_api_app/models/token_data.dart';
-import 'package:crypto_api_app/ui/token_list_view.dart';
+import 'package:crypto_api_app/ui/tokens_list.dart';
+import 'package:crypto_api_app/utils/benchmark.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:statsfl/statsfl.dart';
@@ -42,7 +43,7 @@ class PrimaryView extends StatefulWidget {
   _PrimaryViewState createState() => _PrimaryViewState();
 }
 
-const int limit = 300;
+const int limit = 100;
 
 class _PrimaryViewState extends State<PrimaryView> {
   final PageController _controller = PageController();
@@ -76,7 +77,9 @@ class _PrimaryViewState extends State<PrimaryView> {
 
   void _start() {
     _timer = Timer(Duration(milliseconds: _refreshTime), () {
+      bench.start('Refresh tokens');
       _refreshTokens();
+      bench.end('Refresh tokens');
       _start();
     });
   }
@@ -125,15 +128,6 @@ class _PrimaryViewState extends State<PrimaryView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cryptocus'),
-        actions: [
-          DropdownButton<int>(
-            items: [
-              for (int i = 200; i < 2200; i += 200) DropdownMenuItem(child: Text('$i'), value: i),
-            ],
-            onChanged: _changeRefreshTime,
-            icon: const Icon(MdiIcons.dotsVertical, color: Colors.white),
-          ),
-        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -141,7 +135,7 @@ class _PrimaryViewState extends State<PrimaryView> {
               controller: _controller,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                TokenListView(tokens: _tokens),
+                TokensList(tokens: _tokens),
                 const Center(child: Text('Second')),
                 const Center(child: Text('Third')),
                 const Center(child: Text('Fourth')),
