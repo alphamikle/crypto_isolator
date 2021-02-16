@@ -1,4 +1,4 @@
-# crypto_api_app
+# crypto_isolator
 
 A Flutter app for cryptocurrency
 

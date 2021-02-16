@@ -1,8 +1,8 @@
-import 'package:crypto_api_app/models/token_data.dart';
-import 'package:crypto_api_app/style.dart';
-import 'package:crypto_api_app/ui/token_row/token_percent.dart';
-import 'package:crypto_api_app/ui/token_row/token_price.dart';
-import 'package:crypto_api_app/ui/token_row/token_title.dart';
+import 'package:crypto_isolator/models/token_data.dart';
+import 'package:crypto_isolator/style.dart';
+import 'package:crypto_isolator/ui/token_row/token_percent.dart';
+import 'package:crypto_isolator/ui/token_row/token_price.dart';
+import 'package:crypto_isolator/ui/token_row/token_title.dart';
 import 'package:flutter/material.dart';
 
 const List<DataColumn> _columns = [

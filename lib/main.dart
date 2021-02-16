@@ -1,11 +1,10 @@
-import 'dart:async';
-import 'dart:math';
-
-import 'package:crypto_api_app/models/token_data.dart';
-import 'package:crypto_api_app/ui/tokens_list.dart';
-import 'package:crypto_api_app/utils/benchmark.dart';
+import 'package:crypto_isolator/binance/binance_service.dart';
+import 'package:crypto_isolator/main_thread/main_thread_state.dart';
+import 'package:crypto_isolator/ui/tokens_header.dart';
+import 'package:crypto_isolator/ui/tokens_list_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:statsfl/statsfl.dart';
 
 void main() {
@@ -24,35 +23,32 @@ void main() {
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cryptocus',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<MainThreadState>(create: (_) => MainThreadState(BinanceService())),
+      ],
+      child: MaterialApp(
+        title: 'Cryptocus',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const PrimaryView(),
       ),
-      home: const PrimaryView(),
     );
   }
 }
 
 class PrimaryView extends StatefulWidget {
-  const PrimaryView({Key key, this.title}) : super(key: key);
-  final String title;
+  const PrimaryView({Key key}) : super(key: key);
 
   @override
   _PrimaryViewState createState() => _PrimaryViewState();
 }
 
-const int limit = 100;
-
 class _PrimaryViewState extends State<PrimaryView> {
   final PageController _controller = PageController();
-  final List<TokenData> _tokens = [];
-  final List<TokenData> _initialTokens = [];
-  Timer _timer;
   int _index = 0;
-  bool _isLoading = true;
-  int _refreshTime = 1000;
 
   void _selectIndex(int newIndex) {
     setState(() {
@@ -61,86 +57,23 @@ class _PrimaryViewState extends State<PrimaryView> {
     });
   }
 
-  String _randomToken() {
-    final List<String> alphabet = 'ABCDEFGHIJCLMNOPUVWXYZ'.split('');
-    alphabet.shuffle();
-    return alphabet.getRange(0, 3).join('');
-  }
-
-  double _randomIn(double min, double max) {
-    return (Random().nextDouble() * max).floorToDouble() + min;
-  }
-
-  void _changeRefreshTime(int newTime) {
-    _refreshTime = newTime;
-  }
-
-  void _start() {
-    _timer = Timer(Duration(milliseconds: _refreshTime), () {
-      bench.start('Refresh tokens');
-      _refreshTokens();
-      bench.end('Refresh tokens');
-      _start();
-    });
-  }
-
-  void _refreshTokens() {
-    final bool firstTime = _tokens.isEmpty;
-    for (int i = 0; i < limit; i++) {
-      if (firstTime) {
-        final double price = _randomIn(10.0, 10000.0);
-        final double minPrice = price * _randomIn(0.8, 0.9);
-        final double maxPrice = price * _randomIn(1.1, 1.2);
-        const double diff = 0;
-        final TokenData tokenData = TokenData(title: _randomToken(), price: price, minPrice: minPrice, maxPrice: maxPrice, diff: diff);
-        _tokens.add(tokenData);
-        _initialTokens.add(tokenData);
-      } else {
-        final TokenData oldToken = _tokens[i];
-        final TokenData oldInitialToken = _initialTokens[i];
-        final double diffCf = (oldToken.price - oldInitialToken.price) / oldInitialToken.price * 100;
-        final double cf = diffCf < -75
-            ? _randomIn(1.05, 1.10)
-            : diffCf > 75
-                ? _randomIn(0.90, 0.95)
-                : _randomIn(0.98, 1.03);
-        final double price = oldToken.price * cf;
-        final double minPrice = price * 0.9;
-        final double maxPrice = price * 1.1;
-        final double diff = (price - oldInitialToken.price) / oldInitialToken.price * 100;
-        _tokens[i] = oldToken.copyWith(price: price, minPrice: minPrice, maxPrice: maxPrice, diff: diff);
-      }
-    }
-    _isLoading = false;
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _start();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cryptocus'),
+        bottom: const TokensHeader(),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : PageView(
-              controller: _controller,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                TokensList(tokens: _tokens),
-                const Center(child: Text('Second')),
-                const Center(child: Text('Third')),
-                const Center(child: Text('Fourth')),
-              ],
-            ),
+      body: PageView(
+        controller: _controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          TokensListWrapper<MainThreadState>(),
+          Center(child: Text('Second')),
+          Center(child: Text('Third')),
+          Center(child: Text('Fourth')),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(MdiIcons.numeric1CircleOutline), label: 'Main Thread', activeIcon: Icon(MdiIcons.numeric1Circle)),

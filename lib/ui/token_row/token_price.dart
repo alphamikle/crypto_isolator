@@ -1,3 +1,4 @@
+import 'package:anitex/anitex.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +11,9 @@ class TokenPrice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(currencyFormatter.format(price));
+    return AnimatedText(
+      currencyFormatter.format(price),
+      useOpacity: false,
+    );
   }
 }
