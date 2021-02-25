@@ -4,8 +4,8 @@ import 'package:crypto_isolator/base/token_state.dart';
 import 'package:crypto_isolator/binance/binance_service.dart';
 import 'package:crypto_isolator/models/token_data.dart';
 
-class MainThreadState extends TokenState {
-  MainThreadState(BinanceService binanceService) : super(binanceService);
+class MainThreadState4 extends TokenState {
+  MainThreadState4(BinanceService binanceService) : super(binanceService);
 
   final List<TokenData> _tokens = [];
   final Map<String, TokenData> _tokensBySymbols = {};

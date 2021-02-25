@@ -1,4 +1,5 @@
 import 'package:anitex/anitex.dart';
+import 'package:crypto_isolator/config.dart';
 import 'package:crypto_isolator/style.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -13,10 +14,19 @@ class TokenPercent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedText(
-      percentFormatter.format(percent),
-      style: TextStyle(color: _isPositiveDiff ? upColor : downColor),
-      useOpacity: false,
-    );
+    final String value = percentFormatter.format(percent);
+    final TextStyle style = TextStyle(color: _isPositiveDiff ? upColor : downColor);
+    return useAnimations
+        ? AnimatedText(
+            value,
+            style: style,
+            textAlign: TextAlign.right,
+            useOpacity: false,
+          )
+        : Text(
+            value,
+            style: style,
+            textAlign: TextAlign.right,
+          );
   }
 }

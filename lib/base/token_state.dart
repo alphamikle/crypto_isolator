@@ -10,6 +10,7 @@ abstract class TokenState with ChangeNotifier {
   bool get isLoading;
   List<TokenData> get tokens;
   Future<void> start();
+  Future<void> reset();
 
   @protected
   int predicateForSortingByTitle(TokenData first, TokenData second) {
