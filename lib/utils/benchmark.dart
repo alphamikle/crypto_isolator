@@ -1,3 +1,7 @@
+import 'package:crypto_isolator/config.dart';
+import 'package:crypto_isolator/utils/fps_monitor.dart';
+import 'package:flutter/services.dart';
+
 const int LOG_PADDING = 70;
 
 class _Benchmark {
@@ -32,3 +36,18 @@ class _Benchmark {
 }
 
 final _Benchmark bench = _Benchmark();
+
+void startFps([double refreshRate = deviceRefreshRate]) {
+  FpsMonitor.instance.refreshRate = refreshRate;
+  FpsMonitor.instance.start();
+}
+
+final List<double> frames = [];
+
+Future<void> stopFps() async {
+  frames.clear();
+  frames.addAll(FpsMonitor.instance.stop());
+  final String framesData = frames.join('\n').replaceAll('.', ',');
+  await Clipboard.setData(ClipboardData(text: framesData));
+  frames.clear();
+}

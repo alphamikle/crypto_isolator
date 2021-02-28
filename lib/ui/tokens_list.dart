@@ -14,7 +14,10 @@ class TokensList extends StatelessWidget {
   final bool isLoading;
   final ScrollController controller;
 
-  Widget _tokenRowBuilder(BuildContext context, int index) => TokenRow(tokenData: tokens[index], index: index);
+  Widget _tokenRowBuilder(BuildContext context, int index) {
+    final TokenData tokenData = tokens[index];
+    return TokenRow(key: ValueKey(tokenData.title), tokenData: tokenData, index: index);
+  }
 
   @override
   Widget build(BuildContext context) {

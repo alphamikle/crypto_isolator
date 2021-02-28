@@ -6,5 +6,6 @@ List<bool> fieldsOfToken = [
   false, // max 24h
 ];
 
-const bool useAnimations = true;
+const bool useAnimations = false;
 const bool useFpsMonitor = false;
+const double deviceRefreshRate = 120;

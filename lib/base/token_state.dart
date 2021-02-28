@@ -13,7 +13,9 @@ abstract class TokenState with ChangeNotifier {
   Future<void> reset();
 
   @protected
-  int predicateForSortingByTitle(TokenData first, TokenData second) {
-    return first.title.compareTo(second.title);
-  }
+  int predicateForSortingByTitle(TokenData first, TokenData second) => predicateForSortingByTitle(first, second);
+}
+
+int predicateForSortingByTitle(TokenData first, TokenData second) {
+  return first.title.compareTo(second.title);
 }

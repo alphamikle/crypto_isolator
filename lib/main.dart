@@ -1,9 +1,9 @@
 import 'package:crypto_isolator/base/screens_state.dart';
 import 'package:crypto_isolator/binance/binance_service.dart';
 import 'package:crypto_isolator/config.dart';
+import 'package:crypto_isolator/main_thread/compute_state.dart';
+import 'package:crypto_isolator/main_thread/isolate_state.dart';
 import 'package:crypto_isolator/main_thread/main_thread_state.dart';
-import 'package:crypto_isolator/main_thread/main_thread_state_2.dart';
-import 'package:crypto_isolator/main_thread/main_thread_state_3.dart';
 import 'package:crypto_isolator/main_thread/main_thread_state_4.dart';
 import 'package:crypto_isolator/style.dart';
 import 'package:crypto_isolator/ui/tokens_header.dart';
@@ -36,8 +36,8 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ScreenState()),
         ChangeNotifierProvider<MainThreadState>(create: (_) => MainThreadState(BinanceService())),
-        ChangeNotifierProvider<MainThreadState2>(create: (_) => MainThreadState2(BinanceService())),
-        ChangeNotifierProvider<MainThreadState3>(create: (_) => MainThreadState3(BinanceService())),
+        ChangeNotifierProvider<ComputeState>(create: (_) => ComputeState(BinanceService(useRawData: true))),
+        ChangeNotifierProvider<IsolateState>(create: (_) => IsolateState(BinanceService())),
         ChangeNotifierProvider<MainThreadState4>(create: (_) => MainThreadState4(BinanceService())),
       ],
       child: MaterialApp(
@@ -78,8 +78,8 @@ class PrimaryView extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         children: const [
           TokensListWrapper<MainThreadState>(index: 0),
-          TokensListWrapper<MainThreadState2>(index: 1),
-          TokensListWrapper<MainThreadState3>(index: 2),
+          TokensListWrapper<ComputeState>(index: 1),
+          TokensListWrapper<IsolateState>(index: 2),
           TokensListWrapper<MainThreadState4>(index: 3),
         ],
       ),

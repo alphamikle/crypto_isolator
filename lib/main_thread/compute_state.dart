@@ -3,14 +3,15 @@ import 'dart:async';
 import 'package:crypto_isolator/base/token_state.dart';
 import 'package:crypto_isolator/binance/binance_service.dart';
 import 'package:crypto_isolator/models/token_data.dart';
+import 'package:flutter/foundation.dart';
 
-class MainThreadState3 extends TokenState {
-  MainThreadState3(BinanceService binanceService) : super(binanceService);
+class ComputeState extends TokenState {
+  ComputeState(BinanceService binanceService) : super(binanceService);
 
   final List<TokenData> _tokens = [];
   final Map<String, TokenData> _tokensBySymbols = {};
   bool _isLoading = true;
-  StreamSubscription<List<TokenData>> _subscription;
+  StreamSubscription<String> _subscription;
 
   @override
   bool get isLoading => _isLoading;
@@ -19,16 +20,17 @@ class MainThreadState3 extends TokenState {
 
   @override
   Future<void> start() async {
-    print('Main thread state was started');
+    print('Compute state was started');
     await binanceService.connect();
-    _subscription = binanceService.stream.listen(_fillTokens);
+    _subscription = binanceService.rawStream.listen(_fillTokens);
   }
 
-  void _fillTokens(List<TokenData> tokens) {
+  Future<void> _fillTokens(String rawData) async {
     if (_isLoading) {
       _isLoading = false;
       notifyListeners();
     }
+    final List<TokenData> tokens = await _transformRawData(rawData);
     for (final TokenData tokenData in tokens) {
       _tokensBySymbols[tokenData.title] = tokenData;
     }
@@ -40,7 +42,7 @@ class MainThreadState3 extends TokenState {
 
   @override
   Future<void> reset() async {
-    print('Main thread state was disposed');
+    print('Compute state was disposed');
     await _subscription.cancel();
     binanceService.dispose();
     _isLoading = true;
@@ -48,4 +50,8 @@ class MainThreadState3 extends TokenState {
     _tokensBySymbols.clear();
     notifyListeners();
   }
+}
+
+Future<List<TokenData>> _transformRawData(String rawData) async {
+  return await compute(transformCryptoStringToTokensData, rawData);
 }
