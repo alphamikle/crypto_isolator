@@ -3,8 +3,8 @@ import 'package:crypto_isolator/binance/binance_service.dart';
 import 'package:crypto_isolator/config.dart';
 import 'package:crypto_isolator/main_thread/compute_state.dart';
 import 'package:crypto_isolator/main_thread/isolate_state.dart';
+import 'package:crypto_isolator/main_thread/isolator_state.dart';
 import 'package:crypto_isolator/main_thread/main_thread_state.dart';
-import 'package:crypto_isolator/main_thread/main_thread_state_4.dart';
 import 'package:crypto_isolator/style.dart';
 import 'package:crypto_isolator/ui/tokens_header.dart';
 import 'package:crypto_isolator/ui/tokens_list_wrapper.dart';
@@ -38,7 +38,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<MainThreadState>(create: (_) => MainThreadState(BinanceService())),
         ChangeNotifierProvider<ComputeState>(create: (_) => ComputeState(BinanceService(useRawData: true))),
         ChangeNotifierProvider<IsolateState>(create: (_) => IsolateState(BinanceService())),
-        ChangeNotifierProvider<MainThreadState4>(create: (_) => MainThreadState4(BinanceService())),
+        ChangeNotifierProvider<IsolatorState>(create: (_) => IsolatorState(BinanceService())),
       ],
       child: MaterialApp(
         title: 'Cryptocus',
@@ -80,7 +80,7 @@ class PrimaryView extends StatelessWidget {
           TokensListWrapper<MainThreadState>(index: 0),
           TokensListWrapper<ComputeState>(index: 1),
           TokensListWrapper<IsolateState>(index: 2),
-          TokensListWrapper<MainThreadState4>(index: 3),
+          TokensListWrapper<IsolatorState>(index: 3),
         ],
       ),
       bottomNavigationBar: ClipRRect(

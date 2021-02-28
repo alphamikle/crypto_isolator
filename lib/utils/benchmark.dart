@@ -44,10 +44,38 @@ void startFps([double refreshRate = deviceRefreshRate]) {
 
 final List<double> frames = [];
 
-Future<void> stopFps() async {
+Future<List<double>> stopFps({bool copy = true}) async {
   frames.clear();
   frames.addAll(FpsMonitor.instance.stop());
-  final String framesData = frames.join('\n').replaceAll('.', ',');
-  await Clipboard.setData(ClipboardData(text: framesData));
+  final List<double> response = [...frames];
+  if (copy) {
+    final String framesData = frames.join('\n').replaceAll('.', ',');
+    await Clipboard.setData(ClipboardData(text: framesData));
+  }
   frames.clear();
+  return response;
+}
+
+Future<String> computeTableOfFrames(List<List<double>> columnsOfFrames) async {
+  final Map<int, String> rowsOfFrames = {};
+  int columnsCount = 0;
+  for (final List<double> columnOfFrames in columnsOfFrames) {
+    int rowsCount = 0;
+    for (final double frame in columnOfFrames) {
+      if (rowsOfFrames[rowsCount] != null) {
+        rowsOfFrames[rowsCount] = '${rowsOfFrames[rowsCount]}	$frame';
+      } else {
+        String tabs = '';
+        for (int tabCount = 0; tabCount < columnsCount; tabCount++) {
+          tabs = '$tabs	';
+        }
+        rowsOfFrames[rowsCount] = '$tabs$frame';
+      }
+      rowsCount++;
+    }
+    columnsCount++;
+  }
+  final String tableOfFrames = rowsOfFrames.values.join('\n').replaceAll('.', ',');
+  await Clipboard.setData(ClipboardData(text: tableOfFrames));
+  return tableOfFrames;
 }

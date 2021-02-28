@@ -10,20 +10,23 @@ class IsolateState extends TokenState {
   IsolateState(BinanceService binanceService) : super(binanceService);
 
   final List<TokenData> _tokens = [];
+
   bool _isLoading = true;
+
   StreamSubscription<dynamic> _receivePortSubscription;
+
   Isolate _isolate;
+
   ReceivePort _receivePort;
-  SendPort _sendPort;
 
   @override
   bool get isLoading => _isLoading;
+
   @override
   List<TokenData> get tokens => List.from(_tokens, growable: false);
 
   @override
   Future<void> start() async {
-    print('Isolate state was started');
     _receivePort = ReceivePort();
     final BinanceService binanceService = this.binanceService;
     _isolate = await _startIsolate(Wrapper(sendPort: _receivePort.sendPort, data: binanceService));
@@ -31,19 +34,14 @@ class IsolateState extends TokenState {
   }
 
   Future<void> _handleReceiveStream(dynamic data) async {
-    if (data is SendPort) {
-      _sendPort = data;
-    } else if (data is List<TokenData>) {
+    if (data is List<TokenData>) {
       _fillTokens(data);
-    } else {
-      throw Exception('UNKNOWN DATA TYPE: $data');
     }
   }
 
   void _fillTokens(List<TokenData> tokens) {
     if (_isLoading) {
       _isLoading = false;
-      notifyListeners();
     }
     _tokens.clear();
     _tokens.addAll(tokens);
@@ -52,14 +50,10 @@ class IsolateState extends TokenState {
 
   @override
   Future<void> reset() async {
-    print('Isolate state was disposed');
     await _receivePortSubscription.cancel();
-    _sendPort = null;
-    binanceService.dispose();
     _isLoading = true;
     _tokens.clear();
     _isolate.kill();
-    notifyListeners();
   }
 }
 
@@ -70,6 +64,7 @@ class Wrapper<T> {
   }) : assert(sendPort != null && data != null);
 
   final SendPort sendPort;
+
   final T data;
 }
 
@@ -77,22 +72,17 @@ class _IsolateBinanceWrapper {
   _IsolateBinanceWrapper({
     @required this.binanceService,
     @required this.sendPort,
-  })  : assert(binanceService != null && sendPort != null),
-        receivePort = ReceivePort() {
-    sendPort.send(receivePort.sendPort);
-    receivePort.listen(_handleMessages);
+  }) : assert(binanceService != null && sendPort != null) {
     initBinance();
   }
 
   final BinanceService binanceService;
-  final ReceivePort receivePort;
-  final SendPort sendPort;
-  final List<TokenData> tokens = [];
-  final Map<String, TokenData> tokensBySymbols = {};
 
-  Future<void> _handleMessages(dynamic message) async {
-    print('GOT MESSAGE FROM ISOLATE STATE: $message');
-  }
+  final SendPort sendPort;
+
+  final List<TokenData> tokens = [];
+
+  final Map<String, TokenData> tokensBySymbols = {};
 
   Future<void> initBinance() async {
     await binanceService.connect();

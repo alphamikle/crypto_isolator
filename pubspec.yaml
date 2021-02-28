@@ -18,10 +18,13 @@ dependencies:
   web_socket_channel: ^1.2.0
   provider: ^4.3.3
   anitex: ^1.1.0
+  isolator: ^0.0.4
 
 dependency_overrides:
   anitex:
     path: ../anitex
+  isolator:
+    path: ../isolator
 
 dev_dependencies:
   flutter_test:

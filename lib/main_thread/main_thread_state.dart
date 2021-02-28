@@ -8,18 +8,21 @@ class MainThreadState extends TokenState {
   MainThreadState(BinanceService binanceService) : super(binanceService);
 
   final List<TokenData> _tokens = [];
+
   final Map<String, TokenData> _tokensBySymbols = {};
+
   bool _isLoading = true;
+
   StreamSubscription<List<TokenData>> _subscription;
 
   @override
   bool get isLoading => _isLoading;
+
   @override
   List<TokenData> get tokens => List.from(_tokens, growable: false);
 
   @override
   Future<void> start() async {
-    print('Main thread state was started');
     await binanceService.connect();
     _subscription = binanceService.stream.listen(_fillTokens);
   }
@@ -40,12 +43,10 @@ class MainThreadState extends TokenState {
 
   @override
   Future<void> reset() async {
-    print('Main thread state was disposed');
     await _subscription.cancel();
     binanceService.dispose();
     _isLoading = true;
     _tokens.clear();
     _tokensBySymbols.clear();
-    notifyListeners();
   }
 }
